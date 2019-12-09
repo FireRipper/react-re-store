@@ -8,30 +8,32 @@ const ShoppingCartTable = () => {
             <h2>Your Order</h2>
             <table className='table'>
                 <thead>
-                <th>#</th>
-                <th>Item</th>
-                <th>Count</th>
-                <th>Price</th>
-                <th>Action</th>
+                <tr>
+                    <th>#</th>
+                    <th>Item</th>
+                    <th>Count</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Site Reliability Engineering</td>
-                        <td>2</td>
-                        <td>$40</td>
-                        <td>
-                            <button className='btn btn-outline-danger btn-sm'>
-                                <i className='fa fa-trash' />
-                            </button>
-                            <button className='btn btn-outline-success btn-sm'>
-                                <i className='fa fa-plus-circle' />
-                            </button>
-                            <button className='btn btn-outline-warning btn-sm'>
-                                <i className='fa fa-minus-circle' />
-                            </button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>1</td>
+                    <td>Site Reliability Engineering</td>
+                    <td>2</td>
+                    <td>$40</td>
+                    <td>
+                        <button className='btn btn-outline-danger btn-sm'>
+                            <i className='fa fa-trash' />
+                        </button>
+                        <button className='btn btn-outline-success btn-sm'>
+                            <i className='fa fa-plus-circle' />
+                        </button>
+                        <button className='btn btn-outline-warning btn-sm'>
+                            <i className='fa fa-minus-circle' />
+                        </button>
+                    </td>
+                </tr>
                 </tbody>
             </table>
 
