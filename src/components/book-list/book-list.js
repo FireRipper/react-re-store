@@ -24,7 +24,7 @@ class BookList extends Component {
 
         return (
             <div>
-                <ul>
+                <ul className='book-list'>
                     {books.map((book) => {
                         const { id, ...itemProps } = book
                         return (
