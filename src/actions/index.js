@@ -1,7 +1,8 @@
 import {
     FETCH_BOOKS_SUCCESS,
     FETCH_BOOKS_REQUEST,
-    FETCH_BOOKS_FAILURE
+    FETCH_BOOKS_FAILURE,
+    BOOK_ADDED_TO_CART
 } from '../types'
 
 const booksLoaded = (newBooks) => {
@@ -24,6 +25,13 @@ const booksError = (error) => {
     }
 }
 
+const bookAddedToCart = (bookId) => {
+    return {
+        type: BOOK_ADDED_TO_CART,
+        payload: bookId
+    }
+}
+
 const fetchBooks = (bookstoreService, dispatch) => () => {
     dispatch(booksRequested())
     // 1, - receive data
@@ -36,5 +44,6 @@ const fetchBooks = (bookstoreService, dispatch) => () => {
 }
 
 export {
-    fetchBooks
+    fetchBooks,
+    bookAddedToCart
 }
