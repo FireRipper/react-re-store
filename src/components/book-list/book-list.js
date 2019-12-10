@@ -10,7 +10,7 @@ import { compose } from '../../utils'
 
 import './book-list.css'
 
-class BookList extends Component {
+class BookListContainer extends Component {
 
     componentDidMount() {
         this.props.fetchBooks()
@@ -27,19 +27,23 @@ class BookList extends Component {
             return <ErrorIndicator />
         }
 
-        return (
-            <div>
-                <ul className='book-list'>
-                    {books.map((book) => {
-                        const { id, ...itemProps } = book
-                        return (
-                            <li key={id}><BookListItem book={itemProps} /></li>
-                        )
-                    })}
-                </ul>
-            </div>
-        )
+        return <BookList books={books}/>
     }
+}
+
+const BookList = ({ books }) => {
+    return (
+        <div>
+            <ul className='book-list'>
+                {books.map((book) => {
+                    const { id, ...itemProps } = book
+                    return (
+                        <li key={id}><BookListItem book={itemProps} /></li>
+                    )
+                })}
+            </ul>
+        </div>
+    )
 }
 
 const mapStateToProps = ({ books, loading, error }) => {
@@ -53,4 +57,4 @@ const mapDispatchToProps = (dispatch, { bookstoreService }) => {
 export default compose(
     withBookstoreService(),
     connect(mapStateToProps, mapDispatchToProps)
-)(BookList)
+)(BookListContainer)
