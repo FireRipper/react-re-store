@@ -5,14 +5,24 @@ import {
 } from '../types'
 
 const initialState = {
-    books: [],
-    loading: true,
-    error: null,
-    cartItems: [],
-    orderTotal: 395
+    bookList: {
+        books: [],
+        loading: true,
+        error: null
+    },
+    shoppingCart: {
+        cartItems: [],
+        orderTotal: 0
+    }
 }
 
 const updateCartItems = (cardItems, item, idx) => {
+    if (item.count === 0) {
+        return [
+            ...cardItems.slice(0, idx),
+            ...cardItems.slice(idx + 1)
+        ]
+    }
     if (idx === -1) {
         return [
             ...cardItems,
@@ -26,7 +36,7 @@ const updateCartItems = (cardItems, item, idx) => {
     ]
 }
 
-const updateCartItem = (book, item = {}) => {
+const updateCartItem = (book, item = {}, quantity) => {
     const {
         id = book.id,
         count = 0,
@@ -37,84 +47,81 @@ const updateCartItem = (book, item = {}) => {
     return {
         id,
         title,
-        count: count + 1,
-        total: total + book.price
+        count: count + quantity,
+        total: total + quantity * book.price
     }
 }
 
-const reducer = (state = initialState, action) => {
+const updateOrder = (state, bookId, quantity) => {
+    const { bookList: { books }, shoppingCart: { cartItems } } = state
 
-    console.log(action.type)
+    const book = books.find(({ id }) => id === bookId)
+    const itemIndex = cartItems.findIndex(({ id }) => id === bookId)
+    const item = cartItems[itemIndex]
+
+    const newItem = updateCartItem(book, item, quantity)
+    return {
+        orderTotal: 0,
+        cartItems: updateCartItems(cartItems, newItem, itemIndex)
+    }
+}
+
+const updateBookList = (state, action) => {
+
     switch (action.type) {
     case FETCH_BOOKS_REQUEST:
         return {
-            ...state,
             books: [],
             loading: true,
             error: null
         }
     case FETCH_BOOKS_SUCCESS:
         return {
-            ...state,
             books: action.payload,
             loading: false,
             error: null
         }
     case FETCH_BOOKS_FAILURE:
         return {
-            ...state,
             books: [],
             loading: false,
             error: action.payload
         }
+    }
+}
+
+const updateShoppingCart = (state, action) => {
+
+    switch (action.type) {
     case BOOK_ADDED_TO_CART:
-        const bookId = action.payload
-        const book = state.books.find((book) => book.id === bookId)
-        const itemIndex = state.cartItems.findIndex(({ id }) => id === bookId)
-        const item = state.cartItems[itemIndex]
+        return updateOrder(state, action.payload, 1)
 
-        const newItem = updateCartItem(book, item)
-        return {
-            ...state,
-            cartItems: updateCartItems(state.cartItems, newItem, itemIndex)
-        }
-    case BOOK_REMOVED_FROM_CART: {
-        const quantityId = action.payload
-        const quantityIndex = state.cartItems.findIndex(({ id }) => id === quantityId)
-        const quantityItem = state.cartItems[quantityIndex]
+    case BOOK_REMOVED_FROM_CART:
+        return updateOrder(state, action.payload, -1)
 
-        let newQuantity
-
-        if(quantityItem) {
-            newQuantity = {
-                ...quantityItem,
-                count: quantityItem.count - 1,
-                total: quantityItem.total / 2
-            }
-        }
-
-        return {
-            ...state,
-            cartItems: [
-                ...state.cartItems.slice(0, quantityIndex),
-                newQuantity,
-                ...state.cartItems.slice(quantityIndex + 1)
-            ]
-        }
+    case ALL_BOOKS_REMOVED_FROM_CART:
+        const item = state.shoppingCart.cartItems.find(({ id }) => id === action.payload)
+        return updateOrder(state, action.payload, -item.count)
     }
-    case ALL_BOOKS_REMOVED_FROM_CART: {
-        const delId = action.payload
-        const cartIndex = state.cartItems.findIndex(({ id }) => id === delId)
+}
 
+const reducer = (state = initialState, action) => {
+
+    switch (action.type) {
+    case FETCH_BOOKS_REQUEST:
+    case FETCH_BOOKS_SUCCESS:
+    case FETCH_BOOKS_FAILURE:
         return {
             ...state,
-            cartItems: [
-                ...state.cartItems.slice(0, cartIndex),
-                ...state.cartItems.slice(cartIndex + 1)
-            ]
+            bookList: updateBookList(state, action)
         }
-    }
-
+    case BOOK_ADDED_TO_CART:
+    case BOOK_REMOVED_FROM_CART:
+    case ALL_BOOKS_REMOVED_FROM_CART:
+        return {
+            ...state,
+            shoppingCart: updateShoppingCart(state, action)
+        }
     default:
         return state
     }
