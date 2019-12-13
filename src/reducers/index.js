@@ -1,3 +1,9 @@
+import {
+    BOOK_ADDED_TO_CART, ALL_BOOKS_REMOVED_FROM_CART,
+    FETCH_BOOKS_FAILURE, FETCH_BOOKS_REQUEST,
+    FETCH_BOOKS_SUCCESS, BOOK_REMOVED_FROM_CART
+} from '../types'
+
 const initialState = {
     books: [],
     loading: true,
@@ -37,29 +43,31 @@ const updateCartItem = (book, item = {}) => {
 }
 
 const reducer = (state = initialState, action) => {
+
+    console.log(action.type)
     switch (action.type) {
-    case 'FETCH_BOOKS_REQUEST':
+    case FETCH_BOOKS_REQUEST:
         return {
             ...state,
             books: [],
             loading: true,
             error: null
         }
-    case 'FETCH_BOOKS_SUCCESS':
+    case FETCH_BOOKS_SUCCESS:
         return {
             ...state,
             books: action.payload,
             loading: false,
             error: null
         }
-    case 'FETCH_BOOKS_FAILURE':
+    case FETCH_BOOKS_FAILURE:
         return {
             ...state,
             books: [],
             loading: false,
             error: action.payload
         }
-    case 'BOOK_ADDED_TO_CART':
+    case BOOK_ADDED_TO_CART:
         const bookId = action.payload
         const book = state.books.find((book) => book.id === bookId)
         const itemIndex = state.cartItems.findIndex(({ id }) => id === bookId)
@@ -70,6 +78,42 @@ const reducer = (state = initialState, action) => {
             ...state,
             cartItems: updateCartItems(state.cartItems, newItem, itemIndex)
         }
+    case BOOK_REMOVED_FROM_CART: {
+        const quantityId = action.payload
+        const quantityIndex = state.cartItems.findIndex(({ id }) => id === quantityId)
+        const quantityItem = state.cartItems[quantityIndex]
+
+        let newQuantity
+
+        if(quantityItem) {
+            newQuantity = {
+                ...quantityItem,
+                count: quantityItem.count - 1,
+                total: quantityItem.total / 2
+            }
+        }
+
+        return {
+            ...state,
+            cartItems: [
+                ...state.cartItems.slice(0, quantityIndex),
+                newQuantity,
+                ...state.cartItems.slice(quantityIndex + 1)
+            ]
+        }
+    }
+    case ALL_BOOKS_REMOVED_FROM_CART: {
+        const delId = action.payload
+        const cartIndex = state.cartItems.findIndex(({ id }) => id === delId)
+
+        return {
+            ...state,
+            cartItems: [
+                ...state.cartItems.slice(0, cartIndex),
+                ...state.cartItems.slice(cartIndex + 1)
+            ]
+        }
+    }
 
     default:
         return state
